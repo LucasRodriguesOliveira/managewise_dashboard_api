@@ -1,0 +1,589 @@
+Project ManageWise {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # ManageWise Dashboard Project
+    ## Project to manage organizations
+
+    Allow the ability to setup, configure and manage all the details about your group
+  '''
+}
+
+Table UserType {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table User {
+  id         uuid            [pk, not null]
+  userTypeId integer         [not null]
+  firstName  varchar   (50)  [not null]
+  lastName   varchar   (50)
+  username   varchar   (50)  [not null]
+  password   varchar   (100) [not null]
+  email      varchar   (150)
+  phone      varchar   (50)
+  isActive   boolean         [not null, default: true]
+  createdAt  timestamp       [not null]
+  updatedAt  timestamp       [not null]
+  deletedAt  timestamp
+}
+
+Table Client {
+  id        uuid            [pk, not null]
+  firstName varchar   (50)  [not null]
+  lastName  varchar   (50)
+  email     varchar   (100) [not null]
+  isActive  boolean         [not null, default: true]
+  createdAt timestamp       [not null]
+  updatedAt timestamp       [not null]
+  deletedAt timestamp
+}
+
+Table Color {
+  id          integer        [pk, not null]
+  description varchar   (20) [not null]
+  value       varchar   (7)  [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table CostumerServiceStatus {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  colorId     integer        [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table CostumerService {
+  id          uuid      [pk, not null]
+  statusId    integer   [not null]
+  salesUserId uuid      [not null]
+  clientId    uuid      [not null]
+  createdAt   timestamp [not null]
+  updatedAt   timestamp [not null]
+  deletedAt   timestamp
+}
+
+Table DocumentType {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table Document {
+  id        uuid      [pk, not null]
+  code      varchar   [not null]
+  typeId    integer   [not null]
+  isActive  boolean   [not null, default: true]
+  createdAt timestamp [not null]
+  updatedAt timestamp [not null]
+  deletedAt timestamp
+}
+
+Table Address {
+  id         integer         [pk, not null]
+  zipCode    varchar   (20)  [not null]
+  street     varchar   (100) [not null]
+  number     varchar   (15)  [not null]
+  additional varchar   (100) [not null]
+  city       varchar   (100) [not null]
+  state      varchar   (50)
+  country    varchar   (50)  [not null]
+  isActive   boolean         [not null, default: true]
+  createdAt  timestamp       [not null]
+  updatedAt  timestamp       [not null]
+  deletedAt  timestamp
+}
+
+Table IndustryCategory {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table Corporation {
+  id        uuid          [pk, not null]
+  name      varchar (100) [not null]
+  clientId  integer       [not null]
+  isActive  boolean       [not null, default: true]
+  createdAt timestamp     [not null]
+  updatedAt timestamp     [not null]
+  deletedAt timestamp
+}
+
+Table Company {
+  id                 uuid            [pk, not null]
+  corporationId      uuid            [not null]
+  businessName       varchar   (50)  [not null]
+  tradingName        varchar   (50)  [not null]
+  industryCategoryId integer         [not null]
+  email              varchar   (100)
+  isActive           boolean         [not null, default: true]
+  createdAt          timestamp       [not null]
+  updatedAt          timestamp       [not null]
+  deletedAt          timestamp
+}
+
+Table CorporationDocument {
+  id            integer [pk, not null]
+  corporationId uuid    [not null]
+  documentId    uuid    [not null]
+  useAsPayer    boolean [not null]
+}
+
+Table CorporationAddress {
+  id            integer [pk, not null]
+  corporationId uuid    [not null]
+  addressId     integer [not null]
+  useAsPayer    boolean [not null]
+}
+
+Table StorageType {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table CorporationStorage {
+  id            uuid            [pk, not null]
+  name          varchar   (100) [not null, default: 'default']
+  storateTypeId integer         [not null]
+  corporationId uuid            [not null]
+  host          varchar   (20)  [not null]
+  port          integer         [not null]
+  username      varchar   (50)  [not null]
+  password      varchar   (50)  [not null]
+  database      varchar   (50)  [not null]
+  isActive      boolean         [not null, default: true]
+  createdAt     timestamp       [not null]
+  updatedAt     timestamp       [not null]
+  deletedAt     timestamp
+}
+
+Table NotificationOption {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table UserNotificationPreferences {
+  id         integer   [pk, not null]
+  userId     uuid      [not null]
+  optionId   integer   [not null]
+  isSelected boolean   [not null, default: false]
+  isActive   boolean   [not null, default: false, note: 'Showcase for when it\'s only available in higher plan']
+  createdAt  timestamp [not null]
+  updatedAt  timestamp [not null]
+  deletedAt  timestamp
+}
+
+Table UserCorporation {
+  id            integer [pk, not null]
+  userId        uuid    [not null]
+  corporationId uuid    [not null]
+}
+
+Table Permission {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table Section {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table PermissionGroup {
+  id           integer   [pk, not null]
+  userTypeId   integer   [not null]
+  permissionId integer   [not null]
+  sectionId    integer   [not null]
+  createdAt    timestamp [not null]
+}
+
+Table Currency {
+  id        integer        [pk, not null]
+  name      varchar   (20) [not null]
+  code      varchar   (5)  [not null]
+  isActive  boolean        [not null, default: true]
+  createdAt timestamp      [not null]
+  updatedAt timestamp      [not null]
+  deletedAt timestamp
+}
+
+Table SubscriptionPlan {
+  id             uuid              [pk, not null]
+  name           varchar   (50)    [not null]
+  description    varchar   (150)   [not null]
+  expirationDate date              [not null]
+  value          decimal   (10, 2) [not null]
+  currencyId     integer           [not null]
+  createdAt      timestamp         [not null]
+  updatedAt      timestamp         [not null]
+  deletedAt      timestamp
+}
+
+Table CustomSubscriptionPlan {
+  id                 integer   [pk, not null]
+  subscriptionPlanId uuid      [not null]
+  salesUserId        uuid      [not null, note: 'User id']
+  clientId           uuid      [not null]
+  isDraft            boolean   [not null, default: false]
+  createdAt          timestamp [not null]
+  updatedAt          timestamp [not null]
+  deletedAt          timestamp
+}
+
+Table SubscriptionPlanItemType {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table SubscriptionPlanItem {
+  id          uuid              [pk, not null]
+  itemTypeId  integer           [not null]
+  name        varchar   (50)    [not null]
+  description varchar   (100)   [not null]
+  value       decimal   (10, 2) [not null]
+  quantity    integer           [not null]
+  totalValue  decimal   (10, 2) [not null]
+  isActive    boolean           [not null, default: true]
+  createdAt   timestamp         [not null]
+  updatedAt   timestamp         [not null]
+  deletedAt   timestamp
+}
+
+Table BillingFrequency {
+  id            integer        [pk, not null]
+  description   varchar   (50) [not null]
+  monthQuantity integer        [not null, default: 1]
+  frequency     integer        [not null, default: 1]
+  isActive      boolean        [not null, default: true]
+  createdAt     timestamp      [not null]
+  updatedAt     timestamp      [not null]
+  deletedAt     timestamp
+}
+
+Table DiscountEffectPriority {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null, note: 'FLAT_FIRST,PERCENTAGE_FIRST']
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table Contract {
+  id                       uuid              [pk, not null]
+  subscriptionPlanId       uuid              [not null]
+  salesUserId              uuid              [not null]
+  clientId                 uuid              [not null]
+  expirationDate           date              [not null]
+  subscriptionValue        decimal   (10, 2) [not null]
+  yearlyValue              decimal   (14, 2) [not null]
+  fullPrice                decimal   (14, 2) [not null]
+  billingFrequencyId       integer           [not null]
+  discountPercentage       double            [not null]
+  discountFlat             decimal   (10, 2) [not null]
+  discountEffectPriorityId integer           [not null]
+  lateFee                  double            [not null]
+  dailyLateFee             double            [not null]
+  monthlyFee               double            [not null]
+  monthlyLateFee           double            [not null]
+  yearlyLateFee            double            [not null]
+  totalValue               decimal   (14, 2) [not null]
+  finalValue               decimal   (14, 2) [not null, note: 'With discounts applied']
+  details                  varchar   (150)   [not null, default: '']
+  isActive                 boolean           [not null, default: true]
+  createdAt                timestamp         [not null]
+  updatedAt                timestamp         [not null]
+  deletedAt                timestamp
+}
+
+Table RevokedContractReason {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table RevokedContract {
+  id         integer   [pk, not null]
+  contractId uuid      [not null]
+  reasonId   integer   [not null]
+  createdAt  timestamp [not null]
+  updatedAt  timestamp [not null]
+  deletedAt  timestamp
+}
+
+Table BillingType {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table Billing {
+  id         uuid              [pk, not null]
+  clientId   uuid              [not null]
+  contractId uuid              [not null]
+  typeId     integer           [not null]
+  value      decimal   (10, 2) [not null]
+  dueDate    date              [not null]
+  issuerId   uuid              [not null]
+  isActive   boolean           [not null]
+  createdAt  timestamp         [not null]
+  updatedAt  timestamp         [not null]
+  deletedAt  timestamp
+}
+
+Table PaymentMethod {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table PaymentStatus {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+
+Table InvoiceIssuer {
+  id           uuid            [pk, not null]
+  tradingName  varchar   (100) [not null]
+  businessName varchar   (100) [not null]
+  isActive     boolean         [not null, default: true]
+  createdAt    timestamp       [not null]
+  updatedAt    timestamp       [not null]
+  deletedAt    timestamp
+}
+
+Table InvoiceIssuerDocument {
+  id              integer [pk, not null]
+  invoiceIssuerId uuid    [not null]
+  documentId      uuid    [not null]
+  useAsIssuer     boolean [not null]
+}
+
+Table InvoiceIssuerAddress {
+  id              integer [pk, not null]
+  invoiceIssuerId uuid    [not null]
+  addressId       uuid    [not null]
+  useAsIssuer     boolean [not null]
+}
+
+Table PaymentCondition {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table Invoice {
+  id                 uuid              [not null]
+  number             varchar   (20)    [not null]
+  series             varchar   (10)    [not null]
+  issuerId           uuid              [not null]
+  recipientId        uuid              [not null]
+  description        varchar   (300)   [not null]
+  cfop               varchar   (10)    [not null]
+  taxCode            varchar   (20)    [not null, note: 'CST/CSOSN']
+  icms               decimal   (10, 2) [not null]
+  ipi                decimal   (10, 2) [not null]
+  pis                decimal   (10, 2) [not null, note: 'PIS/COFINS']
+  totalAmount        decimal   (14, 2) [not null]
+  issueDate          timestamp         [not null]
+  exitDate           timestamp         [not null, note: 'Service delivered date']
+  entryDate          timestamp         [not null, note: 'Service received date']
+  paymentConditionId integer           [not null]
+  digitalSignature   varchar   (300)   [not null]
+  isActive           boolean           [not null, default: true]
+  createdAt          timestamp         [not null]
+  updatedAt          timestamp         [not null]
+  deletedAt          timestamp
+}
+
+Table Payment {
+  id               uuid              [pk, not null]
+  billingId        uuid              [not null]
+  invoiceId        uuid              [not null]
+  paymentMethodId  integer           [not null]
+  paymentStatusId  integer           [not null]
+  valuePaid        decimal   (10, 2) [not null]
+  paymentStartDate timestamp         [not null]
+  paymentEndDate   timestamp         [not null]
+  isActive         boolean           [not null, default: true]
+  createdAt        timestamp         [not null]
+  updatedAt        timestamp         [not null]
+  deletedAt        timestamp
+}
+
+Table SupportTicketType {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table SupportTicketStatus {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table SupportTicket {
+  id          integer        [pk, not null]
+  title       varchar   (50) [not null]
+  description text
+  typeId      integer        [not null]
+  statusId    integer        [not null]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table FileType {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+
+  note: 'Video, Image, etc...'
+}
+
+Table SupportTicketAttachment {
+  id            integer         [pk, not null]
+  ticketId      integer         [not null]
+  fileName      varchar   (100) [not null]
+  fileExtension varchar   (10)  [not null]
+  fileTypeId    integer         [not null]
+  isActive      boolean         [not null, default: true]
+  createdAt     timestamp       [not null]
+  updatedAt     timestamp       [not null]
+  deletedAt     timestamp
+}
+
+Table ActivityAction {
+  id          integer        [pk, not null]
+  description varchar   (50) [not null]
+  isActive    boolean        [not null, default: true]
+  createdAt   timestamp      [not null]
+  updatedAt   timestamp      [not null]
+  deletedAt   timestamp
+}
+
+Table ActivityLog {
+  id        bigint         [pk, not null]
+  userId    uuid           [not null]
+  tableName varchar   (32) [not null]
+  actionId  integer        [not null]
+  oldValue  text
+  nextValue text
+  createdAt timestamp      [not null]
+}
+
+Ref "Color_CostumerServiceStatus_fk": CostumerServiceStatus.colorId > Color.id
+Ref "CostumerServiceStatus_CostumerService_fk": CostumerService.statusId > CostumerServiceStatus.id
+Ref "Client_Corporation_fk": Corporation.clientId > Client.id
+Ref "IndustryCategory_Company_fk": Company.industryCategoryId > IndustryCategory.id
+Ref "Corporation_Company_fk": Company.corporationId > Corporation.id
+Ref "DocumentType_Document_fk": Document.typeId > DocumentType.id
+Ref "Corporation_CorporationDocument_fk": CorporationDocument.corporationId > Corporation.id
+Ref "Document_CorporationDocument_fk": CorporationDocument.documentId > Document.id
+Ref "Corporation_CorporationAddress_fk": CorporationAddress.corporationId > Corporation.id
+Ref "Address_CorporationAddress_fk": CorporationAddress.addressId > Address.id
+Ref "StorageType_CorporationStorage_fk": CorporationStorage.storateTypeId > StorageType.id
+Ref "Corporation_CorporationStorage_fk": CorporationStorage.corporationId > Corporation.id
+Ref "UserType_User_fk": User.userTypeId > UserType.id
+Ref "User_UserNotificationPreferences_fk": UserNotificationPreferences.userId > User.id
+Ref "NotificationOption_UserNotificationPreferences_fk": UserNotificationPreferences.optionId > NotificationOption.id
+Ref "Corporation_UserCorporation_fk": UserCorporation.corporationId > Corporation.id
+Ref "User_UserCorporation_fk": UserCorporation.userId > User.id
+Ref "UserType_PermissionGroup_fk": PermissionGroup.userTypeId > UserType.id
+Ref "Permission_PermissionGroup_fk": PermissionGroup.permissionId > Permission.id
+Ref "Section_PermissionGroup_fk": PermissionGroup.sectionId > Section.id
+Ref "Currency_SubscriptionPlan_fk": SubscriptionPlan.currencyId > Currency.id
+Ref "SubscriptionPlan_CustomSubscriptionPlan_fk": CustomSubscriptionPlan.subscriptionPlanId > SubscriptionPlan.id
+Ref "User_CustomSubscriptionPlan_fk": CustomSubscriptionPlan.salesUserId > User.id
+Ref "Client_CustomSubscriptionPlan_fk": CustomSubscriptionPlan.clientId > Client.id
+Ref "SubscriptionPlanItemType_SubscriptionPlanItem_fk": SubscriptionPlanItem.itemTypeId > SubscriptionPlanItemType.id
+Ref "SubscriptionPlan_Contract_fk": Contract.subscriptionPlanId > SubscriptionPlan.id
+Ref "User_Contract_fk": Contract.salesUserId > User.id
+Ref "Clien_Contract_fk": Contract.clientId > Client.id
+Ref "BillingFrequency_Contract_fk": Contract.billingFrequencyId > BillingFrequency.id
+Ref "DiscountEffectPriority_Contract_fk": Contract.discountEffectPriorityId > DiscountEffectPriority.id
+Ref "RevokedContractReason_RevokedContract_fk": RevokedContract.reasonId > RevokedContractReason.id
+Ref "Contract_RevokedContract_fk": RevokedContract.contractId > Contract.id
+Ref "ActivityAction_ActivityLog_fk": ActivityLog.actionId > ActivityAction.id
+Ref "FileType_SupportTicketAttachment_fk": SupportTicketAttachment.fileTypeId > FileType.id
+Ref "SupportTicket_SupportTicketAttachment_fk": SupportTicketAttachment.ticketId > SupportTicket.id
+Ref "SupportTicketStatus_SupportTicket_fk": SupportTicket.statusId > SupportTicketStatus.id
+Ref "Billing_Payment_fk": Payment.billingId > Billing.id
+Ref "Invoice_Payment_fk": Payment.invoiceId > Invoice.id
+Ref "PaymentMethod_Payment_fk": Payment.paymentMethodId > PaymentMethod.id
+Ref "PaymentStatus_Payment_fk": Payment.paymentStatusId > PaymentStatus.id
+Ref "InvoiceIssuer_Invoice_fk": Invoice.issuerId > InvoiceIssuer.id
+Ref "Corporation_Invoice_fk": Invoice.recipientId > Corporation.id
+Ref "PaymentCondition_Invoice_fk": Invoice.paymentConditionId > PaymentCondition.id
+Ref "InvoiceIssuer_InvoiceIssuerAddress_fk": InvoiceIssuerAddress.invoiceIssuerId > InvoiceIssuer.id
+Ref "Address_InvoiceIssuerAddress_fk": InvoiceIssuerAddress.addressId > Address.id
+Ref "InvoiceIssuer_InvoiceIssuerDocument_fk": InvoiceIssuerDocument.invoiceIssuerId > InvoiceIssuer.id
+Ref "Document_InvoiceIssuerDocument_fk": InvoiceIssuerDocument.documentId > Document.id
+Ref "Client_Billing_fk": Billing.clientId > Client.id
+Ref "Contract_Billing_fk": Billing.contractId > Contract.id
+Ref "BillingType_Billing_fk": Billing.typeId > BillingType.id
+Ref "InvoiceIssuer_Billing_fk": Billing.issuerId > InvoiceIssuer.id
