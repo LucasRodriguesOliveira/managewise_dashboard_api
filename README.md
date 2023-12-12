@@ -1,73 +1,66 @@
+# Manage Wise Dashboard API
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+  <img src="https://img.shields.io/badge/Node.js-v20-%23fbfbfb?logo=nodedotjs&color=%2345a955" />
+  <img src="https://img.shields.io/badge/Nest.js-v10-%234555a9?logo=nestjs&color=%23E0234E" />
+  <img src="https://img.shields.io/badge/platform--express-v10-%23fbfbfb?logo=express&color=%23000000" />
+  <img src="https://img.shields.io/badge/Typescript-v5.1.3-%234555a9?logo=typescript&color=%233178C6" />
+  <img src="https://img.shields.io/badge/prisma-v5.7.0-%23fbfbfb?logo=prisma&color=2D3748" />
+  <img src="https://img.shields.io/badge/PostgreSQL-v16.1-%23fbfbfb?logo=postgresql&color=%234169E1" />
+  <img src="https://img.shields.io/badge/Redis-v7.2.3-%23fbfbfb?logo=redis&color=%23DC382D" />
+  <img src="https://img.shields.io/badge/Docker-v24.0.7-%23fbfbfb?logo=docker&color=%232496ED" />
+  <img src="https://img.shields.io/badge/swagger-v7.1.16-%23fbfbfb?logo=swagger&color=%2385EA2D" />
+  <img src="https://img.shields.io/badge/class--validator-v0.14.0-%23fbfbfb?color=%23000000" />
+  <img src="https://img.shields.io/badge/class--transformer-v0.5.1-%23fbfbfb?color=%23000000" />
+  <img src="https://img.shields.io/badge/joi-v17.11-%23fbfbfb?color=%23000000" />
+  <img src="https://img.shields.io/badge/jest-v29.5-%23fbfbfb?logo=jest&color=%23C21325" />
+  <img src="https://img.shields.io/badge/Compodoc-v1.1.233-%234555a9" />
 </p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Uma API para gerenciamento do dashboard e contratos da aplicação ManageWise
 
 ## Installation
 
+Para rodar a aplicação em docker, pode ser executada com:
 ```bash
-$ yarn install
+$ docker compose up
 ```
+Adicione a flag `--build` caso seja a primeira execução ou queira recriar o container
 
-## Running the app
+Caso seja a primeira vez executando a aplicação, será necessário gerar as migrations e sincronizar
 
-```bash
-# development
-$ yarn run start
+Para executar no docker, abra outro terminal e consulte o ID do container:
+`docker ps`
 
-# watch mode
-$ yarn run start:dev
+irá retornar uma lista de containers em execução, basta copiar o ID do container que tem como nome `managewise_dashboard_api-api`
 
-# production mode
-$ yarn run start:prod
-```
+No meu caso, o resultado de `docker ps` é este
+| CONTAINER ID | IMAGE | COMMAND | CREATED | STATUS | PORTS | NAMES
+| --- | --- | --- | --- | --- | --- | --- |
+| 1517231d8eb8 | managewise_dashboard_api-api | "docker-entrypoint.s…" | 3 minutes ago | Up 3 minutes | 0.0.0.0:3000->3000/tcp, :::3000->3000/tcp | managewise_dashboard_api-api-1 |
+| 0cff098d9aee | postgres:16.1-alpine3.19 | "docker-entrypoint.s…" | 3 minutes ago | Up 3 minutes | 0.0.0.0:5432->5432/tcp, :::5432->5432/tcp | managewise_dashboard_api-db-1 |
+| 44b6b95d4762 | redis:7.2.3-alpine | "docker-entrypoint.s…" | 3 minutes ago | Up 3 minutes | 0.0.0.0:6379->6379/tcp, :::6379->6379/tcp | managewise_dashboard_api-redis-1 |
+
+Portanto, no meu caso, `1517231d8eb8` é o ID que preciso do container `managewise_dashboard_api-api`
+
+Agora apenas é necessário rodar o comando `exec`:
+
+- yarn migrate
+`docker exec -it 1517231d8eb8 yarn prisma migrate dev --name init`
+
+- yarn generate
+`docker exec it 1517231d8eb8 yarn generate`
 
 ## Test
+
+Testes unitários podem ser executados localmente
 
 ```bash
 # unit tests
 $ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+ManageWise is [MIT licensed](LICENSE).

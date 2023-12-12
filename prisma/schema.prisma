@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserType {
+  id          Int       @id @default(autoincrement())
+  description String    @db.VarChar(50)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @db.Timestamp()
+  updatedAt   DateTime  @updatedAt() @db.Timestamp()
+  deletedAt   DateTime? @db.Timestamp()
+
+  users User[]
+  permissionGroups PermissionGroup[]
+}
+
+model User {
+  id         String   @id @default(uuid()) @db.Uuid
+  userTypeId Int
+  firstName  String    @db.VarChar(50)
+  lastName   String?   @db.VarChar(50)
+  username   String    @db.VarChar(50)
+  password   String    @db.VarChar(100)
+  email      String?   @db.VarChar(150)
+  phone      String?   @db.VarChar(50)
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now()) @db.Timestamp()
+  updatedAt  DateTime  @updatedAt @db.Timestamp()
+  deletedAt  DateTime? @db.Timestamp()
+
+  userType UserType @relation(fields: [userTypeId], references: [id])
+}
+
+model Permission {
+  id          Int       @id @default(autoincrement())
+  description String    @db.VarChar(50)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @db.Timestamp()
+  updatedAt   DateTime  @updatedAt() @db.Timestamp()
+  deletedAt   DateTime? @db.Timestamp()
+
+  permissionGroups PermissionGroup[]
+}
+
+model Section {
+  id          Int       @id @default(autoincrement())
+  description String    @db.VarChar(50)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @db.Timestamp()
+  updatedAt   DateTime  @updatedAt() @db.Timestamp()
+  deletedAt   DateTime? @db.Timestamp()
+
+  permissionGroups PermissionGroup[]
+}
+
+model PermissionGroup {
+  id           Int      @id @default(autoincrement())
+  userTypeId   Int
+  permissionId Int
+  sectionId    Int
+  createdAt    DateTime @default(now()) @db.Timestamp()
+
+  userType UserType @relation(fields: [userTypeId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+  section Section @relation(fields: [sectionId], references: [id])
+}

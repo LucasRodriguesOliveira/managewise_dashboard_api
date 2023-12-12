@@ -2,6 +2,16 @@
 /dist
 /node_modules
 
+# env files
+.env
+
+# Lock files
+yarn.lock
+package.lock.json
+
+# Documentation
+/documentation
+
 # Logs
 logs
 *.log
