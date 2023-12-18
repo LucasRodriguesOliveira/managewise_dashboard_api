@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserType } from '@prisma/client';
 import { randomBytes, randomInt } from 'crypto';
-import { PrismaService } from '../../service/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserTypeDto } from './dto/create-user-type.dto';
 import { CreateUserTypeResponse } from './dto/create-user-type.response';
 import { ListUserTypeResponse } from './dto/list-user-type.response';
