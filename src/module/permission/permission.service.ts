@@ -28,7 +28,6 @@ export class PermissionService {
   }: QueryListPermissionDto): Promise<ListPermissionResponse[]> {
     let deletedAt: Date;
 
-    console.log({ includeExcluded });
     if (!includeExcluded) {
       deletedAt = null;
     }
