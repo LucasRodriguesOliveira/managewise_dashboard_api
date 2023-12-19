@@ -7,9 +7,10 @@ import {
   MaxLength,
 } from 'class-validator';
 
-export class QueryUserTypeDto {
+export class QueryListPermissionDto {
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   @MaxLength(50)
   @ApiProperty({
     type: String,
@@ -20,7 +21,6 @@ export class QueryUserTypeDto {
   description?: string;
 
   @IsBoolean()
-  @IsNotEmpty()
   @IsOptional()
   @ApiProperty({
     type: Boolean,
@@ -28,5 +28,5 @@ export class QueryUserTypeDto {
     nullable: false,
     default: false,
   })
-  includeDeleted?: boolean;
+  includeExcluded?: boolean;
 }

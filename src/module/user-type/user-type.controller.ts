@@ -13,6 +13,7 @@ import {
   Post,
   Query,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -48,7 +49,14 @@ export class UserTypeController {
     type: CreateUserTypeDto,
   })
   public async create(
-    @Body() createUserTypeDto: CreateUserTypeDto,
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        forbidNonWhitelisted: true,
+      }),
+    )
+    createUserTypeDto: CreateUserTypeDto,
   ): Promise<CreateUserTypeResponse> {
     return this.userTypeService.create(createUserTypeDto);
   }
@@ -59,7 +67,14 @@ export class UserTypeController {
     type: ListUserTypeResponse,
   })
   public async list(
-    @Query() queryUserTypeDto: QueryUserTypeDto,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        forbidNonWhitelisted: true,
+      }),
+    )
+    queryUserTypeDto: QueryUserTypeDto,
   ): Promise<ListUserTypeResponse[]> {
     return this.userTypeService.list(queryUserTypeDto);
   }
@@ -83,7 +98,14 @@ export class UserTypeController {
   })
   public async update(
     @Param('userTypeId', ParseIntPipe) userTypeId: number,
-    @Body() updateUserTypeDto: UpdateUserTypeDto,
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        forbidNonWhitelisted: true,
+      }),
+    )
+    updateUserTypeDto: UpdateUserTypeDto,
   ): Promise<UpdateUserTypeResponse> {
     let userType: UpdateUserTypeResponse;
 
