@@ -7,6 +7,7 @@ import { throttlerConfig } from './config/throttler.config';
 import { UserTypeModule } from './module/user-type/user-type.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PermissionModule } from './module/permission/permission.module';
+import { SectionModule } from './module/section/section.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PermissionModule } from './module/permission/permission.module';
     PrismaModule,
     UserTypeModule,
     PermissionModule,
+    SectionModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
