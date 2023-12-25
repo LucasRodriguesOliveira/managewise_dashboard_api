@@ -3,8 +3,6 @@ name: unit-test
 run-name: ${{ github.event_name }} at ${{ github.ref_name }} - ${{ github.actor }}
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 

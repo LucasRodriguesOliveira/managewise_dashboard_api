@@ -2,6 +2,7 @@ FROM node:20-alpine3.17
 
 ARG ENV
 ARG DB_PORT
+ARG DATABASE_URL
 
 ENV NODE_ENV=${ENV:-development}
 
@@ -19,6 +20,8 @@ RUN yarn
 COPY /src ./src
 
 EXPOSE ${API_PORT}
+
+RUN yarn prisma generate
 
 CMD ["yarn", "start:dev"]
 

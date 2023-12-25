@@ -1,9 +1,10 @@
 import {
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Permission } from '@prisma/client';
+import { Permission, UserTypePermission } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { randomBytes, randomInt } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -25,6 +26,9 @@ describe('PermissionController', () => {
       findMany: jest.fn(),
       update: jest.fn(),
       findFirstOrThrow: jest.fn(),
+    },
+    userTypePermission: {
+      findFirst: jest.fn(),
     },
   };
 
@@ -196,12 +200,38 @@ describe('PermissionController', () => {
       });
     });
 
-    it('should remove a user type by adding a date to deletedAt field', async () => {
-      const result = await permissionController.remove(permission.id);
+    describe('Success', () => {
+      beforeEach(() => {
+        prisma.userTypePermission.findFirst.mockResolvedValueOnce({});
+      });
 
-      expect(result.deletedAt).not.toBeNull();
-      expect(result.deletedAt).not.toBeUndefined();
-      expect(prisma.permission.update).toHaveBeenCalled();
+      it('should remove a user type by adding a date to deletedAt field', async () => {
+        const result = await permissionController.remove(permission.id);
+
+        expect(result.deletedAt).not.toBeNull();
+        expect(result.deletedAt).not.toBeUndefined();
+        expect(prisma.permission.update).toHaveBeenCalled();
+      });
+    });
+
+    describe('Fail', () => {
+      const permissionGroup: UserTypePermission = {
+        id: randomInt(100),
+        userTypeId: randomInt(100),
+        permissionId: permission.id,
+      };
+
+      beforeEach(() => {
+        prisma.userTypePermission.findFirst.mockResolvedValueOnce(
+          permissionGroup,
+        );
+      });
+
+      it('should throw an error', async () => {
+        expect(() =>
+          permissionController.remove(permission.id),
+        ).rejects.toThrow(ForbiddenException);
+      });
     });
   });
 });

@@ -1,9 +1,10 @@
 import {
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserType } from '@prisma/client';
+import { UserType, UserTypePermission } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { randomBytes, randomInt } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -25,6 +26,9 @@ describe('UserTypeController', () => {
       findMany: jest.fn(),
       update: jest.fn(),
       findFirstOrThrow: jest.fn(),
+    },
+    userTypePermission: {
+      findFirst: jest.fn(),
     },
   };
 
@@ -195,12 +199,38 @@ describe('UserTypeController', () => {
       });
     });
 
-    it('should remove a user type by adding a date to deletedAt field', async () => {
-      const result = await userTypeController.remove(userType.id);
+    describe('Success', () => {
+      beforeEach(() => {
+        prisma.userTypePermission.findFirst.mockResolvedValueOnce({});
+      });
 
-      expect(result.deletedAt).not.toBeNull();
-      expect(result.deletedAt).not.toBeUndefined();
-      expect(prisma.userType.update).toHaveBeenCalled();
+      it('should remove a user type by adding a date to deletedAt field', async () => {
+        const result = await userTypeController.remove(userType.id);
+
+        expect(result.deletedAt).not.toBeNull();
+        expect(result.deletedAt).not.toBeUndefined();
+        expect(prisma.userType.update).toHaveBeenCalled();
+      });
+    });
+
+    describe('Fail', () => {
+      const permissionGroup: UserTypePermission = {
+        id: randomInt(100),
+        userTypeId: userType.id,
+        permissionId: randomInt(100),
+      };
+
+      beforeEach(() => {
+        prisma.userTypePermission.findFirst.mockResolvedValueOnce(
+          permissionGroup,
+        );
+      });
+
+      it('should throw an error', async () => {
+        expect(() => userTypeController.remove(userType.id)).rejects.toThrow(
+          ForbiddenException,
+        );
+      });
     });
   });
 });

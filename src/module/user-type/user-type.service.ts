@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserTypeDto } from './dto/create-user-type.dto';
 import { CreateUserTypeResponse } from './dto/create-user-type.response';
@@ -58,6 +62,14 @@ export class UserTypeService {
   }
 
   async remove(userTypeId: number): Promise<RemoveUserTypeResponse> {
+    const canDelete = await this.canDelete(userTypeId);
+
+    if (!canDelete) {
+      throw new ForbiddenException(
+        'There are items which depends on this user type. Please change the dependency before excluding',
+      );
+    }
+
     const userType = await this.prisma.userType.update({
       where: { id: userTypeId },
       data: {
@@ -78,6 +90,24 @@ export class UserTypeService {
       },
     });
 
-    return !!userType.deletedAt;
+    return !!userType?.deletedAt;
+  }
+
+  /**
+   * check if there is any dependency associated with the
+   * this user type. Return an error if exists so the user know
+   * it must update de dependency to point to another item instead of
+   * the current one so it can be safely deleted without cascading
+   * @param userTypeId user type identification to check
+   */
+  private async canDelete(userTypeId: number): Promise<boolean> {
+    // returns a list of dependecies found
+    const results = await Promise.all([
+      this.prisma.userTypePermission.findFirst({ where: { userTypeId } }),
+    ]);
+
+    // if the list contains a truthy result, it means it does contain a dependency
+    // in other words: cannot delete
+    return results.every((result) => !result?.id);
   }
 }
