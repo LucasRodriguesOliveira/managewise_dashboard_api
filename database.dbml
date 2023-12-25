@@ -213,21 +213,10 @@ Table Permission {
   deletedAt   timestamp
 }
 
-Table Section {
-  id          integer        [pk, not null]
-  description varchar   (50) [not null]
-  isActive    boolean        [not null, default: true]
-  createdAt   timestamp      [not null]
-  updatedAt   timestamp      [not null]
-  deletedAt   timestamp
-}
-
-Table PermissionGroup {
-  id           integer   [pk, not null]
-  userTypeId   integer   [not null]
-  permissionId integer   [not null]
-  sectionId    integer   [not null]
-  createdAt    timestamp [not null]
+Table UserTypePermission {
+  id integer [pk, not null]
+  userTypeId integer [not null]
+  permissionId integer [not null]
 }
 
 Table Currency {

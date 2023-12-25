@@ -11,6 +11,7 @@ export class QueryUserTypeDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
+  @IsOptional()
   @ApiProperty({
     type: String,
     required: false,

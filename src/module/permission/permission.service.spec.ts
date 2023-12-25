@@ -1,5 +1,6 @@
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Permission } from '@prisma/client';
+import { Permission, UserTypePermission } from '@prisma/client';
 import { randomBytes, randomInt } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
@@ -18,6 +19,9 @@ describe('PermissionService', () => {
       findMany: jest.fn(),
       update: jest.fn(),
       findFirstOrThrow: jest.fn(),
+    },
+    userTypePermission: {
+      findFirst: jest.fn(),
     },
   };
 
@@ -111,24 +115,41 @@ describe('PermissionService', () => {
       description: updatePermissionDto.description,
     });
 
-    beforeEach(() => {
-      prisma.permission.update.mockResolvedValueOnce({
-        ...permission,
-        description: updatePermissionDto.description,
+    describe('Success', () => {
+      beforeEach(() => {
+        prisma.permission.update.mockResolvedValueOnce({
+          ...permission,
+          description: updatePermissionDto.description,
+        });
+        prisma.permission.findFirstOrThrow.mockResolvedValueOnce(permission);
       });
-      prisma.permission.findFirstOrThrow.mockResolvedValueOnce(permission);
+
+      it('should update the permission description', async () => {
+        const result = await permissionService.update(
+          permission.id,
+          updatePermissionDto,
+        );
+
+        expect(result).toStrictEqual(updatePermissionResponse);
+        expect(prisma.permission.update).toHaveBeenCalledWith<
+          [{ where: { id: number }; data: UpdatePermissionDto }]
+        >({ data: updatePermissionDto, where: { id: permission.id } });
+      });
     });
 
-    it('should update the permission description', async () => {
-      const result = await permissionService.update(
-        permission.id,
-        updatePermissionDto,
-      );
+    describe('Fail', () => {
+      beforeEach(() => {
+        prisma.permission.findFirstOrThrow.mockResolvedValueOnce({
+          ...permission,
+          deletedAt: new Date(),
+        });
+      });
 
-      expect(result).toStrictEqual(updatePermissionResponse);
-      expect(prisma.permission.update).toHaveBeenCalledWith<
-        [{ where: { id: number }; data: UpdatePermissionDto }]
-      >({ data: updatePermissionDto, where: { id: permission.id } });
+      it('should not update the permission description', async () => {
+        expect(() =>
+          permissionService.update(permission.id, updatePermissionDto),
+        ).rejects.toThrow(BadRequestException);
+      });
     });
   });
 
@@ -149,12 +170,38 @@ describe('PermissionService', () => {
       });
     });
 
-    it('should remove a permission by adding a date to deletedAt field', async () => {
-      const result = await permissionService.remove(permission.id);
+    describe('Success', () => {
+      beforeEach(() => {
+        prisma.userTypePermission.findFirst.mockResolvedValueOnce({});
+      });
 
-      expect(result.deletedAt).not.toBeNull();
-      expect(result.deletedAt).not.toBeUndefined();
-      expect(prisma.permission.update).toHaveBeenCalled();
+      it('should remove a user type by adding a date to deletedAt field', async () => {
+        const result = await permissionService.remove(permission.id);
+
+        expect(result.deletedAt).not.toBeNull();
+        expect(result.deletedAt).not.toBeUndefined();
+        expect(prisma.permission.update).toHaveBeenCalled();
+      });
+    });
+
+    describe('Fail', () => {
+      const permissionGroup: UserTypePermission = {
+        id: randomInt(100),
+        userTypeId: randomInt(100),
+        permissionId: permission.id,
+      };
+
+      beforeEach(() => {
+        prisma.userTypePermission.findFirst.mockResolvedValueOnce(
+          permissionGroup,
+        );
+      });
+
+      it('should throw an error', async () => {
+        expect(() => permissionService.remove(permission.id)).rejects.toThrow(
+          ForbiddenException,
+        );
+      });
     });
   });
 });

@@ -1,5 +1,6 @@
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserType } from '@prisma/client';
+import { UserType, UserTypePermission } from '@prisma/client';
 import { randomBytes, randomInt } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserTypeDto } from './dto/create-user-type.dto';
@@ -18,6 +19,9 @@ describe('UserTypeService', () => {
       findMany: jest.fn(),
       update: jest.fn(),
       findFirstOrThrow: jest.fn(),
+    },
+    userTypePermission: {
+      findFirst: jest.fn(),
     },
   };
 
@@ -111,24 +115,41 @@ describe('UserTypeService', () => {
       description: updateUserTypeDto.description,
     });
 
-    beforeEach(() => {
-      prisma.userType.update.mockResolvedValueOnce({
-        ...userType,
-        description: updateUserTypeDto.description,
+    describe('Success', () => {
+      beforeEach(() => {
+        prisma.userType.update.mockResolvedValueOnce({
+          ...userType,
+          description: updateUserTypeDto.description,
+        });
+        prisma.userType.findFirstOrThrow.mockResolvedValueOnce(userType);
       });
-      prisma.userType.findFirstOrThrow.mockResolvedValueOnce(userType);
+
+      it('should update the user type description', async () => {
+        const result = await userTypeService.update(
+          userType.id,
+          updateUserTypeDto,
+        );
+
+        expect(result).toStrictEqual(updateUserTypeResponse);
+        expect(prisma.userType.update).toHaveBeenCalledWith<
+          [{ where: { id: number }; data: UpdateUserTypeDto }]
+        >({ data: updateUserTypeDto, where: { id: userType.id } });
+      });
     });
 
-    it('should update the user type description', async () => {
-      const result = await userTypeService.update(
-        userType.id,
-        updateUserTypeDto,
-      );
+    describe('Fail', () => {
+      beforeEach(() => {
+        prisma.userType.findFirstOrThrow.mockResolvedValueOnce({
+          ...userType,
+          deletedAt: new Date(),
+        });
+      });
 
-      expect(result).toStrictEqual(updateUserTypeResponse);
-      expect(prisma.userType.update).toHaveBeenCalledWith<
-        [{ where: { id: number }; data: UpdateUserTypeDto }]
-      >({ data: updateUserTypeDto, where: { id: userType.id } });
+      it('should not update the user type description', async () => {
+        expect(() =>
+          userTypeService.update(userType.id, updateUserTypeDto),
+        ).rejects.toThrow(BadRequestException);
+      });
     });
   });
 
@@ -142,19 +163,42 @@ describe('UserTypeService', () => {
       deletedAt: null,
     };
 
-    beforeEach(() => {
-      prisma.userType.update.mockResolvedValueOnce({
-        ...userType,
-        deletedAt: new Date(),
+    describe('Success', () => {
+      beforeEach(() => {
+        prisma.userType.update.mockResolvedValueOnce({
+          ...userType,
+          deletedAt: new Date(),
+        });
+        prisma.userTypePermission.findFirst.mockResolvedValueOnce({});
+      });
+
+      it('should remove a user type by adding a date to deletedAt field', async () => {
+        const result = await userTypeService.remove(userType.id);
+
+        expect(result.deletedAt).not.toBeNull();
+        expect(result.deletedAt).not.toBeUndefined();
+        expect(prisma.userType.update).toHaveBeenCalled();
       });
     });
 
-    it('should remove a user type by adding a date to deletedAt field', async () => {
-      const result = await userTypeService.remove(userType.id);
+    describe('Fail', () => {
+      const permissionGroup: UserTypePermission = {
+        id: randomInt(100),
+        userTypeId: userType.id,
+        permissionId: randomInt(100),
+      };
 
-      expect(result.deletedAt).not.toBeNull();
-      expect(result.deletedAt).not.toBeUndefined();
-      expect(prisma.userType.update).toHaveBeenCalled();
+      beforeEach(() => {
+        prisma.userTypePermission.findFirst.mockResolvedValueOnce(
+          permissionGroup,
+        );
+      });
+
+      it('should throw an error', async () => {
+        expect(() => userTypeService.remove(userType.id)).rejects.toThrow(
+          ForbiddenException,
+        );
+      });
     });
   });
 });

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { CreatePermissionResponse } from './dto/create-permission.response';
@@ -61,6 +65,14 @@ export class PermissionService {
   }
 
   async remove(permissionId: number): Promise<RemovePermissionResponse> {
+    const canDelete = await this.canDelete(permissionId);
+
+    if (!canDelete) {
+      throw new ForbiddenException(
+        'There are items which depends on this permission. Please change the dependency before excluding',
+      );
+    }
+
     const permission = await this.prisma.permission.update({
       where: { id: permissionId },
       data: {
@@ -82,5 +94,23 @@ export class PermissionService {
     });
 
     return !!permission.deletedAt;
+  }
+
+  /**
+   * check if there is any dependency associated with the
+   * this user type. Return an error if exists so the user know
+   * it must update de dependency to point to another item instead of
+   * the current one so it can be safely deleted without cascading
+   * @param permissionId user type identification to check
+   */
+  private async canDelete(permissionId: number): Promise<boolean> {
+    // returns a list of dependecies found
+    const results = await Promise.all([
+      this.prisma.userTypePermission.findFirst({ where: { permissionId } }),
+    ]);
+
+    // if the list contains a truthy result, it means it does contain a dependency
+    // in other words: cannot delete
+    return results.every((result) => !result?.id);
   }
 }
